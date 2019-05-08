@@ -1,3 +1,7 @@
+/*
+ */
+package examen;
+
 public class Mensaje{
     private String contenido;
     public boolean escuchado;

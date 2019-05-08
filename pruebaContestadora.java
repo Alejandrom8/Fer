@@ -71,8 +71,8 @@ public class PruebaContestadora{
 
        String opciones =
                   "\n Opciones de la contestadora \n" + 
-                  "\n		1. Especificar capacidad de almacenamiento" + 
-                  "   2. gregar un nuevo mensaje \n" + 
+                  "\n   1. Especificar capacidad de almacenamiento \n" + 
+                  "   2. Agregar un nuevo mensaje \n" + 
                   "   3. Cantidad de mensajes recibidos \n" + 
                   "   4. Borrar un mensajes \n" + 
                   "   5. Borrar todos los mensajes \n" +
