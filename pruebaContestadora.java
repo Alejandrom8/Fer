@@ -7,7 +7,7 @@ public class PruebaContestadora{
      Contestadora c = new Contestadora();
      Scanner lector = new Scanner(System.in);
      
-     int opcion, indice;
+     int opcion, indice, capacidad;
      String mensaje;
      boolean estado;
      
