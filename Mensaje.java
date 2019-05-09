@@ -1,10 +1,7 @@
-/*
- */
-package examen;
-
 public class Mensaje{
     private String contenido;
     public boolean escuchado;
+    public String hora;
 
     public Mensaje(String cont){
         contenido = cont;

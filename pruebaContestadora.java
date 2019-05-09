@@ -1,9 +1,11 @@
 import java.util.Scanner;
 
 public class PruebaContestadora{
-  
-   public static void main(String [] args){
+
+   public static int lengthOpciones;
    
+   public static void main(String [] args){
+     
      Contestadora c = new Contestadora();
      Scanner lector = new Scanner(System.in);
      
@@ -30,9 +32,12 @@ public class PruebaContestadora{
             c.agregarMensaje(mensaje);
             break;
           case 3: //Conocer los mensajes recibidos
-            System.out.println("Teines " + c.getNumMensajes() + " mensajes");
+            mensaje = "Teines " + c.getNumMensajes() + " mensaje";
+            if(c.getNumMensajes() == 1){ mensaje += "s"; }
+            System.out.println(mensaje);
             break;
           case 4://Borrar mensaje
+            c.printMenuMensajes();
             System.out.print("Introduce el indice: ");
             indice = Integer.parseInt(lector.nextLine());
             c.borrarMensaje(indice);
@@ -41,17 +46,18 @@ public class PruebaContestadora{
             c.borrarTodosLosMensajes();
             break;
           case 6: //Número de mensajes no-escuchados
-            System.out.println("Hay un total de " + c.msjNoEscuchados() + " mensajes no escuchados");
-            break;
-          case 7: //Saber si la contestadora tiene espacio
-            estado = c.hayEspacio();
-            mensaje = estado ? "La contestadora esta llena" : "La contestadora no esta llena";
+            mensaje = "Hay un total de " + c.msjNoEscuchados();
+            mensaje += c.msjNoEscuchados() == 1 ? " mensajes no escuchados" : " mensaje no escuchado";
             System.out.println(mensaje);
             break;
+          case 7: //Saber si la contestadora tiene espacio
+            c.printEstadoEspacio();
+            break;
           case 8: //Leer mensaje
+            c.printMenuMensajes();
             System.out.print("Introduce el número de mensaje que deseas leer: ");
             indice = Integer.parseInt(lector.nextLine());
-            System.out.println(c.leerMensaje(indice));
+            c.leerMensaje(indice);
             break;
           case 9: //Todos los mensajes no escuchados
             c.mostrarMensajes();
@@ -63,27 +69,50 @@ public class PruebaContestadora{
             System.out.println("La opción elegida no es válida\n");
             break;
         }//Fin switch
-      }while(opcion != 10);
+        
+        if(opcion != lengthOpciones){
+            pressToContinue();
+        }
+       
+      }while(opcion != lengthOpciones);
       //Fin main
-  	}
+ }
   
     public static void menu(){
 
-       String opciones =
-                  "\n Opciones de la contestadora \n" + 
-                  "\n   1. Especificar capacidad de almacenamiento \n" + 
-                  "   2. Agregar un nuevo mensaje \n" + 
-                  "   3. Cantidad de mensajes recibidos \n" + 
-                  "   4. Borrar un mensajes \n" + 
-                  "   5. Borrar todos los mensajes \n" +
-                  "   6. Número de mensajes no-escuchados \n" + 
-                  "   7. Determinar si la contestadora tiene espacio\n" + 
-                  "   8. Leer mensaje \n" + 
-                  "   9. Todos los mensajes no escuchados \n" +
-                  "   10. Salir \n\n" + 
-                  "       Escribe una opcion: ";
+       String opciones[] = {
+           "Especificar capacidad de almacenamiento",
+           "Agregar un nuevo mensaje",
+           "Cantidad de mensajes recibidos",
+           "Borrar un mensaje",
+           "Borrar todos los mensajes",
+           "Cantidad de mensajes no escuchados",
+           "Determinar si la contestadora tiene espacio",
+           "Leer mensaje",
+           "Leer todos los mensajes no escuchados"
+       };
+       
+       lengthOpciones = opciones.length + 1;
+       
+       String print = "\n Menú \n\n";
+       
+       for(int i = 1; i <= opciones.length; i++){
+           print += "   " + i + ". " + opciones[i-1] + " \n";
+       }
+       
+       print += "   " + (opciones.length + 1) + ". Salir \n\n";
+       print += "Escriba una opcion: ";
 
-      System.out.print(opciones);
+      System.out.print(print);
 
+    }
+    
+    private static void pressToContinue(){ 
+        System.out.print("\n    Oprime ENTER para continuar...  ");
+        try{
+            System.in.read();
+        }catch(Exception e){
+        
+        }  
     }
 }

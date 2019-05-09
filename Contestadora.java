@@ -1,6 +1,8 @@
+import java.util.Calendar;
+
 public class Contestadora{
   
-  private final int cantidad;				//capacidad de almacenamiento
+  private final int cantidad;//capacidad de almacenamiento
   private final Mensaje mensajes[]; // contenedor de mensajes
   private int length = 0;
 
@@ -26,60 +28,147 @@ public class Contestadora{
     return this.cantidad;
   }
   
-  //Método para borrar un mensaje en particular
-  public boolean borrarMensaje(int indice){
+  //Método para agregar un nuevo mensaje
+  public boolean agregarMensaje(String mensaje){
     
-      if (indice >= 0 && indice < this.length){
-        this.removeIndex(this.mensajes, indice);
-        System.out.println("Se borró el mensaje correctamente");
-        if(this.length > 0){ this.length--; }
-        return true;
+    /*
+    *   @access public
+    *   @param String mensaje, texto que se añadira;
+    *   @return true, si el mensaje se añade correctamente, false si:
+             -no hay más espacio en la contestadora
+             -no se añadio correctamente el mensaje
+    */  
+    
+    String mensajeStatus;
+    Response res = new Response();
+    
+    if(this.hayEspacio()){
+        
+      int hora, minutos, segundos;  
+      String format;
+      Calendar calendario = Calendar.getInstance();
+      Mensaje nuevoMensaje = new Mensaje(mensaje);
+      
+      hora      =  calendario.get(Calendar.HOUR_OF_DAY);
+      minutos   = calendario.get(Calendar.MINUTE);
+      segundos =  calendario.get(Calendar.SECOND);
+      format    = hora + ":" + minutos + ":" + segundos;
+      
+      nuevoMensaje.hora = format;
+ 
+      this.mensajes[length] = nuevoMensaje;
+      
+      if(this.mensajes[length] != null){
+          this.length++;
+          res.estado = true;
+          mensajeStatus = "Se añadió un nuevo mensaje a las " + format;
+      }else{
+          mensajeStatus = "No se logro añadir el mensaje";
       }
+      
+    }else{
+        mensajeStatus = "No hay más espacio en la contestadora";
+    }
     
-      System.out.println("No se borró el mensaje correctamente");
-      return false;
+    res.mensajeStatus = mensajeStatus;
+    res.printMensaje();
+    this.printEstadoEspacio();
+    
+    return res.estado;
+  }
+  
+    //Método para borrar un mensaje en particular
+  public boolean borrarMensaje( int index ){
+      
+      /*
+      * @access public
+      * @param Int index, indice del mensaje que se borrara;
+      * @return boolean true, si el mensaje fue borrado correctamente
+      */
+      
+      String mensajeStatus;
+      Response res = new Response();
+      
+      if(this.length > 0){
+
+        if (index >= 0 && index < this.length){
+          if(this.removeIndex(this.mensajes, index)){
+
+              mensajeStatus = "Se borró el mensaje correctamente";
+              if(this.length > 0){ this.length--; }
+              res.estado = true;
+
+          }else{
+              mensajeStatus = "No se borró el mensaje correctamente";
+          }   
+        }else{
+            mensajeStatus = "El indice esta fuera de rango";
+        }
+      }else{
+          mensajeStatus = "No hay mensajes por borrar";
+      }
+      
+      res.mensajeStatus = mensajeStatus;
+      res.printMensaje();
+      this.printEstadoEspacio();
+      
+      return res.estado;
   }
   
   //Método para borrar todos los mensajes
   public boolean borrarTodosLosMensajes(){
-    int menos = 0;
     
-    for (int i = 0; i < this.length ; i++){
-      this.removeIndex(this.mensajes, i);
-      menos++;
+    Response res = new Response();
+    String mensajeStatus;
+    int errorCont = 0;
+    
+    if(this.length > 0){
+        int menos = 0;
+        
+        for (int i = 0; i < this.length ; i++){
+          if(this.removeIndex(this.mensajes, i)){
+              menos++;
+          }else{
+              res.errores[i] = "mensaje " + i + " no borrado";
+              errorCont++;
+          }
+        }
+        
+        if(errorCont == 0){
+            this.length -= menos;
+            res.estado = true;
+            mensajeStatus = "se borro un total de " + menos + " mensajes";
+        }else{
+            res.printErrores();
+            mensajeStatus = "No se lograron borrar todos los mensajes";
+        }
+        
+    }else{
+        mensajeStatus = "No hay mensajes para borrar";
     }
     
-    this.length -= menos;
+    res.mensajeStatus = mensajeStatus;
+    res.printMensaje();
     
-    System.out.println("Se han borrado todos los mensajes");
-    return true;
+    return res.estado;
   }
   
-  private void removeIndex( Mensaje [] array, int index){
+  private boolean removeIndex( Mensaje [] array, int index){
+      
     int i = index;
+    
     for (; i < array.length-1; i++){
       array[i] = array[i+1];
     }
-    array[i]=null;
-  }
- 
-  //Método para agregar un nuevo mensaje
-  public boolean agregarMensaje(String mensaje){
-    if(length < cantidad){
-      Mensaje nuevoMensaje = new Mensaje(mensaje);
-      this.mensajes[length] = nuevoMensaje;
-      this.length++;
-      
-      System.out.println("Se añadió un nuevo mensaje.");
-      return true;
-    }
-    System.out.println("No hay mas espacio en la contestadora");
-    return false;
+    
+    array[i] = null;
+    
+    return true;
+    
   }
   
   //Método para determinar la cantidad de mensajes "no-escuchados"
   public int msjNoEscuchados(){
-  
     int noEscuchados = 0; 
     boolean estadoMensaje;
     
@@ -97,27 +186,58 @@ public class Contestadora{
   
   //Método para determinar si la contestadora está llena
   public boolean hayEspacio(){
-    return this.length != this.cantidad;
+    /*
+    *   @return true si hay espacio
+    */
+    boolean estado = this.length < this.cantidad;    
+    return estado;
+  }
+  
+  public void printEstadoEspacio(){
+      
+    String mensaje;
+    boolean estado = this.hayEspacio();
+    
+    if(this.length == this.cantidad -1){
+        mensaje = "La contestadora esta apunto de llenarse";
+    }else{
+        int espacio = this.cantidad - this.length;
+        mensaje = estado ? "Queda un espacio total de " + espacio + " mensajes" : "La contestadora esta llena";
+    }
+    System.out.println(mensaje);
   }
   
   //Método para leer un mensaje en particular
-  public String leerMensaje(int index){
+  public boolean leerMensaje(int index){
     
-    String respuesta;
+    String mensajeStatus;
+    Response res = new Response();
     
     if(index >= 0 && index < this.length){
-      
+        
       if(mensajes[index].getContenido() != null){
-        respuesta = mensajes[index].getContenido();
+        mensajeStatus = "Mensaje " + index + ": " + mensajes[index].getContenido() +  "    - recibido a las " + this.mensajes[index].hora + " -";
+        this.mensajes[index].setEscuchado(true);
       }else{
-        respuesta = "No hay mensaje";
+        mensajeStatus = "No hay mensaje para mostrar";
       }
       
     }else{
-      respuesta = "No existe el indice del mensaje";
+      mensajeStatus = "No existe el indice " + index + " en la contestadora";
     }
     
-    return respuesta;
+    res.mensajeStatus = mensajeStatus;
+    res.printMensaje();
+    
+    return res.estado;
+  }
+  
+  public void printMenuMensajes(){
+      String menu = "\n    MENSAJES\n| id |   hora   |\n";
+      for(int i = 0; i < this.length; i++){
+          menu += "| " + i + "  | " + this.mensajes[i].hora + " | \n";
+      }
+      System.out.println(menu);
   }
   
   //Método que imprime en pantalla todos los mensajes de la contestadora que no hayan sido 
@@ -132,7 +252,7 @@ public class Contestadora{
         estadoMensaje = this.mensajes[i].escuchado;
         
         if(!estadoMensaje){
-          System.out.println(this.mensajes[i].getContenido());
+          System.out.println("Mensaje " + i + ": " + mensajes[i].getContenido() +  "    - recibido a las " + this.mensajes[i].hora + " -");
           this.mensajes[i].setEscuchado(true);
         }else {
           escuchados++;
